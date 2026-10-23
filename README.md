@@ -1,60 +1,63 @@
 # yaft-dalmoori-8x8
 
-[yaft](https://github.com/uobikiemukot/yaft) 프레임버퍼 터미널 + 한글 입력 패치 + **달무리(dalmoori) 8x8 도트폰트** 빌드.
+[yaft](https://github.com/uobikiemukot/yaft) ?�레?�버???��???+ ?��? ?�력 ?�치 + **?�무�?dalmoori) 8x8 ?�트?�트** 빌드.
 
-X/Wayland 없이 TTY 프레임버퍼에서 한글을 쓰기 위한 구성입니다.
-ThinkPad X61 (1024x768) 기준으로 **256칸 × 96줄** 터미널이 됩니다.
+X/Wayland ?�이 TTY ?�레?�버?�에???��????�기 ?�한 구성?�니??
+ThinkPad X61 (1024x768) 기�??�로 **256�?× 96�?* ?��??�이 ?�니??
 
 ![screenshot](docs/yaft-8x8.png)
 
+cmatrix �� 256ĭ����: 
+
+![cmatrix](docs/larp-cmatrix.png)
+
 ## 구성
 
-| 항목 | 내용 |
+| ??�� | ?�용 |
 |---|---|
-| 베이스 | yaft (MIT, haru) |
-| 한글 입력 | libhangul 기반 패치 (ESC 로 영문 전환, 한/영 키 = `0x80` 센티널) |
-| 폰트 | [달무리](https://github.com/RanolP/dalmoori-font) (Apache-2.0) TTF → BDF 변환 |
-| 셀 크기 | 4×8 px (ASCII 4px 폭 / 한글 8px 폭 = 2셀) |
-| 해상도 | 1024×768 → 256 cols × 96 lines |
+| 베이??| yaft (MIT, haru) |
+| ?��? ?�력 | libhangul 기반 ?�치 (ESC �??�문 ?�환, ??????= `0x80` ?�티?? |
+| ?�트 | [?�무�?(https://github.com/RanolP/dalmoori-font) (Apache-2.0) TTF ??BDF 변??|
+| ?� ?�기 | 4×8 px (ASCII 4px ??/ ?��? 8px ??= 2?�) |
+| ?�상??| 1024×768 ??256 cols × 96 lines |
 
-원본 한글 패치는 [이 가이드](http://ith.kr/)에서 배포된 것을 기반으로 했고,
-16×16 한글도깨비 폰트 대신 8×8 달무리 폰트를 쓰도록 수정했습니다.
+?�본 ?��? ?�치??[??가?�드](http://ith.kr/)?�서 배포??것을 기반?�로 ?�고,
+16×16 ?��??�깨�??�트 ?�??8×8 ?�무�??�트�??�도�??�정?�습?�다.
 
 ## 빌드
 
-의존성:
+?�존??
 
 ```bash
 sudo pacman -S --needed base-devel libhangul
-# 폰트를 다시 만들 경우에만
+# ?�트�??�시 만들 경우?�만
 yay -S otf2bdf
 ```
 
 빌드:
 
 ```bash
-# mkfont_bdf 는 wcwidth() 로 글리프 폭을 판정하므로 UTF-8 로케일이 필수
+# mkfont_bdf ??wcwidth() �?글리프 ??�� ?�정?��?�?UTF-8 로�??�이 ?�수
 export LANG=ko_KR.UTF-8
 make clean
 make
 sudo make install
 ```
 
-`glyph.h` 는 `fonts/dalmoori/dalmoori8.bdf` 로부터 자동 생성됩니다.
+`glyph.h` ??`fonts/dalmoori/dalmoori8.bdf` 로�????�동 ?�성?�니??
 
-## 폰트 다시 만들기
-
+## ?�트 ?�시 만들�?
 ```bash
 otf2bdf -p 8 -r 72 -o fonts/dalmoori/dalmoori8.bdf /usr/share/fonts/dalmoori/dalmoori.ttf
 make clean && make
 ```
 
-`otf2bdf` 는 8px 픽셀 크기로 비트맵을 뽑습니다.
-달무리는 ASCII 4px / 한글 8px 폭으로 설계되어 있어, 그대로 셀 폭 4px 터미널이 됩니다.
+`otf2bdf` ??8px ?��? ?�기�?비트맵을 뽑습?�다.
+?�무리는 ASCII 4px / ?��? 8px ??���??�계?�어 ?�어, 그�?�??� ??4px ?��??�이 ?�니??
 
-## 한/영 키 설정 (콘솔 키맵)
+## ???????�정 (콘솔 ?�맵)
 
-yaft 는 한/영 키를 `0x80` 바이트로 인식합니다.
+yaft ???????��? `0x80` 바이?�로 ?�식?�니??
 
 ```bash
 sudo mkdir -p /etc/kbd
@@ -69,35 +72,32 @@ sudo mkdir -p /usr/share/kbd/keymaps/custom
 sudo sh -c 'gzip -c /etc/kbd/yaft.kmap > /usr/share/kbd/keymaps/custom/yaft.map.gz'
 sudo loadkeys custom/yaft
 
-# 부팅 시 자동 적용
+# 부?????�동 ?�용
 sudo sed -i 's/^KEYMAP=.*/KEYMAP=custom\/yaft/' /etc/vconsole.conf
 ```
 
-키코드는 기종마다 다를 수 있습니다. TTY 에서 `showkey` 로 확인해
-`keycode N = F60` 을 맞춰 주세요.
+?�코?�는 기종마다 ?��? ???�습?�다. TTY ?�서 `showkey` �??�인??`keycode N = F60` ??맞춰 주세??
 
-## 실행
+## ?�행
 
-TTY 로그인 후:
+TTY 로그????
 
 ```bash
-yaft          # 기본 셸 (zsh) 실행
-yaft <명령>    # 특정 명령 실행
+yaft          # 기본 ??(zsh) ?�행
+yaft <명령>    # ?�정 명령 ?�행
 ```
 
-- 한/영 키: 한글 모드 토글
-- ESC: 영문 모드로 전환 (vim 등에서 편의)
-- `YAFT_FB_W`, `YAFT_FB_H` 환경변수로 해상도 강제 가능
+- ?????? ?��? 모드 ?��?
+- ESC: ?�문 모드�??�환 (vim ?�에???�의)
+- `YAFT_FB_W`, `YAFT_FB_H` ?�경변?�로 ?�상??강제 가??
+## ?�려�??�항
 
-## 알려진 사항
+- 빌드?� ?�행 모두 UTF-8 로�??�이?�야 ?�니??(`LANG=ko_KR.UTF-8`).
+- 4px ??ASCII ???�게 보입?�다. 8px ??�� ?�요?�면 8px BDF �?만들??  makefile ??`mkfont_bdf` ?�자�?바꾸�??�니??
+- 콘솔 ?�맵??바꾸므�? yaft 밖의 TTY ?�서 ?????�는 `0x80` ??출력?�니??
 
-- 빌드와 실행 모두 UTF-8 로케일이어야 합니다 (`LANG=ko_KR.UTF-8`).
-- 4px 폭 ASCII 는 작게 보입니다. 8px 폭이 필요하면 8px BDF 를 만들어
-  makefile 의 `mkfont_bdf` 인자만 바꾸면 됩니다.
-- 콘솔 키맵을 바꾸므로, yaft 밖의 TTY 에서 한/영 키는 `0x80` 을 출력합니다.
-
-## 라이선스
+## ?�이?�스
 
 - yaft: MIT (LICENSE)
-- 달무리 폰트: Apache-2.0 (`fonts/dalmoori/LICENSE`)
-- 한글 입력 패치: 원 배포자 가이드 기준
+- ?�무�??�트: Apache-2.0 (`fonts/dalmoori/LICENSE`)
+- ?��? ?�력 ?�치: ??배포??가?�드 기�?
