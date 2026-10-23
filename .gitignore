@@ -1,0 +1,11 @@
+# build artifacts
+yaft
+yaftx
+mkfont_bdf
+glyph.h
+H04.FNT
+
+# editor / os
+*.o
+*.swp
+.DS_Store
